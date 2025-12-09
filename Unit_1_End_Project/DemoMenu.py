@@ -55,9 +55,15 @@ class DemoMenu:
             self.clear_console()
             for optIndex in range(0,len(menuOptions)):
                 print(f'[{optIndex}] - {menuOptions[optIndex]}')
+            print(f'[E] - Exit')
 
-            value = input("Choose Option: ")  
+            value = input("Choose Option: ") 
+            if value.upper() == "E":
+                self.clear_console()
+                self.running = False
+                break
             try:
+
                 menuIndx = int(value)
                 if menuIndx < 0 or menuIndx >= len(menuOptions):
                     continue
