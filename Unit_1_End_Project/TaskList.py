@@ -66,6 +66,6 @@ class TaskList:
                     taskInfo = TaskInfo.TaskInfo()
                     if taskInfo.loadFromJson(record):
                         self.taskList[taskInfo.taskId] = taskInfo
-                    print(record)
+                    
             jFile.close()
 

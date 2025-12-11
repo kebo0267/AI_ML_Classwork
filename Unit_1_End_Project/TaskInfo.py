@@ -18,6 +18,8 @@ class TaskInfo:
         self.dateFormat = "%Y-%m-%d %H:%M:%S"
         self.altDateFormat = "%Y-%m-%d"
 
+    def getDateTimeFormat(self):
+        return self.altDateFormat
     @property
     def taskName(self):
         return self.info["taskName"]
@@ -79,7 +81,7 @@ class TaskInfo:
         return self.info["taskCompleteDate"]
     
 
-    def taskCreateDate(self,timeStr=None):
+    def set_taskCreateDate(self,timeStr=None):
         if timeStr == None:
             self.info["taskCreateDate"] = datetime.now()
         elif type(timeStr) == datetime:
@@ -93,7 +95,7 @@ class TaskInfo:
                 except ValueError as ex:
                     pass
 
-    def taskUpdateDate(self,timeStr=None):
+    def set_taskUpdateDate(self,timeStr=None):
         if timeStr == None:
             self.info["taskUpdateDate"] = datetime.now()
         elif type(timeStr) == datetime:
@@ -108,7 +110,8 @@ class TaskInfo:
                     pass
             
 
-    def taskCompleteDate(self,timeStr=None):
+    def set_taskCompleteDate(self,timeStr=None):
+        self.status = "Done"
         if timeStr == None:
             self.info["taskCompleteDate"] = datetime.now()
         elif type(timeStr) == datetime:

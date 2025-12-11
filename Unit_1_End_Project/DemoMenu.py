@@ -15,6 +15,8 @@ class DemoMenu:
 
 
     def clear_console(self):
+        print(os.name)
+        clear_output()
         if os.name == "nt":
             os.system('cls')
         else:
@@ -88,12 +90,19 @@ class DemoMenu:
 
     def viewTasks(self):
         tasklist = list(self.taskList.getTaskList().values())
+        self.clear_console()
         for task in tasklist:
-            print(f'{task.taskId} - {task.taskName - {task.status}}')
+            startdate = task.taskCreateDate.strftime(task.getDateTimeFormat())
+            updatedate = task.taskUpdateDate.strftime(task.getDateTimeFormat())
+            completdate = task.taskCompleteDate.strftime(task.getDateTimeFormat())
+            outputStr = f'{task.taskId} - {task.taskName} - {task.status}'
+            outputStr = f'{outputStr} {startdate} {updatedate} {completdate}'
+            print(outputStr)
 
-        self.printMenu(tasklist,showIndex=False)
+        print()
+        print("Press Enter to continue.")
         value = input("Press any Key to return")
-
+        
     def addTask(self,user):
         retVal = False
         menuOptions = ["Task Name", "Description","Due Date (yyyy-mm-dd)"]
@@ -123,22 +132,22 @@ class DemoMenu:
         self.clear_console()
         print("Complete Task")
         print("Task ID  -  Task Name")
-        taskList = self.taskList.getTaskList()
+        taskList = list(self.taskList.getTaskList().values())
         for task in taskList:
             print(f'{task.taskId} - {task.taskName}')
         
         print(f'[E] - Exit')
-         
+        print() 
         print(f'Select Task ID : ')
         value = input(f'Task ID : ')
         if (value.upper() == "E") or len(value) == 0:
             self.clear_console()
             return
         
-        if value < 0 or value >= len(taskList):
+        taskId = int(value)
+        if taskId < 0 or taskId >= len(taskList):
             return
         
-        taskId = int(value)
         task = self.taskList.getTask(taskId)
         if task == None:
             return
@@ -153,22 +162,23 @@ class DemoMenu:
         self.clear_console()
         print("Remove Task")
         print("Task ID  -  Task Name")
-        taskList = self.taskList.getTaskList()
+        taskList = self.taskList.getTaskList().values()
         for task in taskList:
             print(f'{task.taskId} - {task.taskName}')
         
         print(f'[E] - Exit')
-         
+
+        print()
         print(f'Select Task ID : ')
         value = input(f'Task ID : ')
         if (value.upper() == "E") or len(value) == 0:
             self.clear_console()
             return
         
-        if value < 0 or value >= len(taskList):
+        taskId = int(value)
+        if taskId < 0 or taskId >= len(taskList):
             return
         
-        taskId = int(value)
         task = self.taskList.removeTask(taskId)
 
     def taskingMenu(self,user=None):
@@ -179,7 +189,7 @@ class DemoMenu:
         while running:
             userNameStr = f' User {user.userName}'
             self.printMenu(menuOptions,userNameStr)
-            
+            print()
             value = input("Choose Option: ") 
             if (value.upper() == "E") or len(value) == 0:
                 self.clear_console()

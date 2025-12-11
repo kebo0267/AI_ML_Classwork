@@ -92,6 +92,5 @@ class UserList:
                     userInfo = UserInfo.UserInfo()
                     if userInfo.loadFromJson(record):
                         self.userList[userInfo.userName] = userInfo
-                    print(record)
             jFile.close()
 
