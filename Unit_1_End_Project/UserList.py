@@ -35,7 +35,7 @@ class UserList:
             self.saveRecords()
 
     def checkuUserExist(self,userName):
-        retVal = userName in self.userList
+        retVal = userName in self.userList.keys()
         
         return retVal
     
@@ -76,12 +76,11 @@ class UserList:
         jFile = open(self.userListFileName,"w")
         for record in self.userList.values():
             outputStr = record.getAsJson()
-            print(outputStr)
             jFile.write(outputStr)
             jFile.write("\n")
         jFile.close()
 
-    def loadReords(self,userFileName=None):
+    def loadRecords(self,userFileName=None):
         if not userFileName == None:
             self.userListFileName = userFileName
         if os.path.isfile(self.userListFileName):
