@@ -124,7 +124,7 @@ class DemoMenu:
         task = TaskInfo.TaskInfo()
         task.taskName = taskName
         task.description = description
-        task.taskCreateDate(dueDateStr)
+        task.set_taskCreateDate(dueDateStr)
         task.createUser = user.userName
         self.taskList.addTask(task)
         
