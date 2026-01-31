@@ -10,6 +10,7 @@ import seaborn as sns
 from sklearn.datasets import make_friedman1
 from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
 from sklearn.tree import DecisionTreeRegressor
+
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import mean_squared_error, root_mean_squared_error, r2_score
 from sklearn.preprocessing import OneHotEncoder,StandardScaler
@@ -22,7 +23,6 @@ class DataProcessing:
         self.X_test = None
         self.y_train = None
         self.y_test = None
-        self.scaled_df = None
         self.target = None
         self.dateFormat = "%Y-%m-%d %H:%M:%S"
    
@@ -52,21 +52,14 @@ class DataProcessing:
     def get_test_labels(self):
         return self.y_test
     
-    def get_copy(self):
-        return self.df.copy()
-    
-    def get_original_copy(self):
-        return self.df_orig.copy()
-    
-    def get_scaled_data(self):
-        return self.scaled_df
+    def get_data(self):
+        return self.df
+
+    def get_original(self):
+        return self.df_orig
     
     def get_info(self):
-        retVal = ""
-        for col in self.df.columns:
-            retVal = f'{retVal} Column: {col} - Data Type {self.df[col].dtype}\n'
-
-        return retVal
+        return self.df.info()
     
     def get_mean(self,parameter):
         ret_val = None
@@ -180,27 +173,57 @@ class DataProcessing:
             self.df[f'{parameter}_sec'] = dt_parameter.dt.second.astype("int16")
             self.df[f'{parameter}_micro'] = dt_parameter.dt.microsecond.astype("int16")
 
-    def processWithStandardScaler(self):
-        drop_columns = []
+    def processWithStandardScaler(self,scale_features:list=None,inplace:bool=False):
         scale_columns = []
-        for col in self.df.columns:
-            if (str(self.df[col].dtype).startswith("float")) or (str(self.df[col].dtype).startswith("int")):
-                scale_columns.append(col)
-            else:
-                drop_columns.append(col)
+        if scale_features is None:            
+            for col in self.df.columns:
+                if (str(self.df[col].dtype).startswith("float")) or (str(self.df[col].dtype).startswith("int")):
+                    scale_columns.append(col)
+        else:
+            scale_columns = scale_features
+        
         scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(self.df.drop(columns=drop_columns))
-        self.scaled_df = pd.DataFrame(scaled_data,columns=scale_columns)
+        if (not self.X_train is None):
+            scaled_data = pd.DataFrame(scaler.fit_transform(self.X_train[scale_columns]),
+                                       columns=scale_columns,
+                                       index=self.X_train.index)
+            self.set_scaled_data(self.X_train,scaled_data,inplace)
 
-    def get_groupby_data(self,cateagories=None):
+        if (not self.X_test is None):
+            scaled_data = pd.DataFrame(scaler.fit_transform(self.X_test[scale_columns]),
+                                       columns=scale_columns,
+                                       index=self.X_test.index)
+            self.set_scaled_data(self.X_test,scaled_data,inplace)
+
+        if (self.X_train is None) and (not self.df is None):
+            scaled_data = pd.DataFrame(scaler.fit_transform(self.df[scale_columns]),
+                                       columns=scale_columns,
+                                       index=self.df.index)
+            self.set_scaled_data(self.df,scaled_data,inplace)
+
+        
+
+
+
+
+    def set_scaled_data(self,data:pd.DataFrame,scaled_data:pd.DataFrame,inplace:bool=False):
+        if inplace == True:
+            data[scaled_data.columns] = scaled_data
+        else:
+            for col in scaled_data.columns:
+                data[f'{col}_T'] = scaled_data[col]
+
+        #self.scaled_df = pd.DataFrame(scaled_data,columns=scale_columns)
+
+    def get_groupby_data(self,categories=None):
         ret_value = self.get_copy()
-        if not cateagories is None:
-           ret_value = ret_value.groupby(cateagories)
+        if not categories is None:
+           ret_value = ret_value.groupby(categories)
 
         return ret_value
     
-    def get_scatter_plot(self,paramters=None):
-        if not paramters is None:
+    def get_scatter_plot(self,parameters=None):
+        if not parameters is None:
         
         # Visualize
             fig, axes = plt.subplots(1, 2, figsize=(8, 3))
@@ -227,9 +250,14 @@ class DataProcessing:
         else:
             dataset = data.copy()
 
-        X = dataset.drop(self.target,axis=1)
-        y = dataset[self.target]
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X,y,train_size=train_split,random_state=random_state)
+        if (self.target == None):
+            # Assume this is a categorization problem
+            X = dataset.copy()
+            self.X_train, self.X_test = train_test_split(X,train_size=train_split,random_state=random_state)
+        else:
+            X = dataset.drop(self.target,axis=1)
+            y = dataset[self.target]
+            self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X,y,train_size=train_split,random_state=random_state)
 
     
         
